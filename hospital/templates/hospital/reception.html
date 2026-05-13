@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reception - Admit Patient</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f7fc;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            background: linear-gradient(90deg,#0d6efd,#0b5ed7);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .card {
+            border-radius: 16px;
+            border: none;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #0d6efd;
+        }
+
+        .doc-box {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="header d-flex justify-content-between align-items-center">
+        <h2>Reception - Patient Admission</h2>
+        <a href="/dashboard/" class="btn btn-light">Dashboard</a>
+    </div>
+
+    <div class="row mt-4">
+
+        <!-- FORM -->
+        <div class="col-md-8">
+
+            <div class="card shadow p-4">
+
+                <h4 class="section-title">Patient Admission Form</h4>
+
+                <!-- ERROR MESSAGE -->
+                {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                {% endif %}
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <input type="text" name="name" class="form-control" placeholder="Full Name" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <input type="number" name="age" class="form-control" placeholder="Age" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="gender" class="form-control">
+                                <option>Male</option>
+                                <option>Female</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <input type="text" name="phone" class="form-control" placeholder="Phone Number">
+                        </div>
+
+                        <!-- DOCTOR DROPDOWN FIXED -->
+                        <div class="col-md-6">
+                            <select name="doctor" class="form-control" required>
+                                <option value="" disabled selected>Select Doctor</option>
+                                {% for doctor in doctors %}
+                                    <option value="{{ doctor.id }}">{{ doctor.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <input type="text" name="ward" class="form-control" placeholder="Ward (e.g. General / ICU)">
+                        </div>
+
+                        <div class="col-md-6">
+                            <select name="priority" class="form-control">
+                                <option>Normal</option>
+                                <option>High</option>
+                                <option>Emergency</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <textarea name="reason" class="form-control" placeholder="Reason for admission"></textarea>
+                        </div>
+
+                        <div class="col-md-12">
+                            <input type="text" name="address" class="form-control" placeholder="Home Address">
+                        </div>
+
+                    </div>
+
+                    <button class="btn btn-primary mt-4 w-100">
+                        Admit Patient
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <!-- DOCUMENT CHECKLIST -->
+        <div class="col-md-4">
+
+            <div class="card shadow p-4">
+
+                <h4 class="section-title">Required Documents</h4>
+
+                <div class="doc-box mb-2">✔ ID / Passport</div>
+                <div class="doc-box mb-2">✔ Medical Aid Card</div>
+                <div class="doc-box mb-2">✔ Referral Letter</div>
+                <div class="doc-box mb-2">✔ Previous Medical Reports</div>
+                <div class="doc-box mb-2">✔ Emergency Contact Details</div>
+
+                <hr>
+
+                <p class="text-muted">
+                    Ensure all documents are verified before admission.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

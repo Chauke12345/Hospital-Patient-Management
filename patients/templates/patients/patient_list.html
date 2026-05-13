@@ -1,0 +1,13 @@
+<h2>Patient List</h2>
+
+<a href="/patients/add/">Add Patient</a>
+
+<ul>
+    {% for p in patients %}
+        <li>
+            {{ p.first_name }} {{ p.last_name }} |
+            Age: {{ p.age }} |
+            Doctor: {{ p.assigned_doctor }}
+        </li>
+    {% endfor %}
+</ul>
