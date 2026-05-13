@@ -32,7 +32,11 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "hospital-sync-system.onrender.com"
+]
 
 
 # =====================================
@@ -105,10 +109,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # =====================================
 # DATABASE (Render compatible)
 # =====================================
-
 DATABASES = {
     "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600
     )
 }
 
@@ -139,12 +143,10 @@ USE_TZ = True
 # STATIC FILES (RENDER READY)
 # =====================================
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static"
-]
 
 
 # WhiteNoise (modern Django way)
