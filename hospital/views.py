@@ -77,46 +77,54 @@ def patients(request):
 # =====================================
 # RECEPTION
 # =====================================
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Patient, Doctor
+
+
 def reception(request):
-    doctors = Doctor.objects.all()
+
+    try:
+        doctors = Doctor.objects.all()
+    except Exception:
+        doctors = []
 
     if request.method == "POST":
-        doctor_id = request.POST.get("doctor")
-
-        if not doctor_id:
-            return render(request, "hospital/reception.html", {
-                "doctors": doctors,
-                "error": "Please select a doctor"
-            })
-
-        doctor = get_object_or_404(Doctor, id=doctor_id)
 
         try:
+            doctor_id = request.POST.get("doctor")
+
+            if not doctor_id:
+                return render(request, "hospital/reception.html", {
+                    "doctors": doctors,
+                    "error": "Please select a doctor"
+                })
+
+            doctor = get_object_or_404(Doctor, id=doctor_id)
+
             Patient.objects.create(
-                name=request.POST.get("name") or "Unknown",
+                name=request.POST.get("name", "Unknown"),
                 age=int(request.POST.get("age") or 0),
-                gender=request.POST.get("gender") or "Not specified",
-                phone=request.POST.get("phone") or "N/A",
-                ward=request.POST.get("ward") or "General",
-                reason=request.POST.get("reason") or "",
-                priority=request.POST.get("priority") or "Normal",
+                gender=request.POST.get("gender", "Not specified"),
+                phone=request.POST.get("phone", "N/A"),
+                ward=request.POST.get("ward", "General"),
+                reason=request.POST.get("reason", ""),
+                priority=request.POST.get("priority", "Normal"),
                 doctor=doctor
             )
 
             return redirect("patients")
 
         except Exception as e:
-            print("ERROR:", e)
+            print("RECEPTION ERROR:", e)
 
             return render(request, "hospital/reception.html", {
                 "doctors": doctors,
-                "error": "Error saving patient"
+                "error": f"System error: {str(e)}"
             })
 
     return render(request, "hospital/reception.html", {
         "doctors": doctors
     })
-
 
 # =====================================
 # APPOINTMENTS
