@@ -4,13 +4,15 @@ from django.contrib.auth.decorators import login_required
 
 from .models import Patient, Doctor, Appointment, Prescription
 
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+
 
 # =====================================
 # LOGIN
 # =====================================
 def login_view(request):
-    create_admin_if_not_exists()  # 👈 ADD THIS LINE
-
     error = None
 
     if request.method == "POST":
@@ -19,7 +21,7 @@ def login_view(request):
 
         user = authenticate(request, username=username, password=password)
 
-        if user:
+        if user is not None:
             login(request, user)
             return redirect("dashboard")
 
@@ -188,3 +190,25 @@ def prescriptions(request):
         "prescriptions": Prescription.objects.all().order_by("-id")
     })
 
+
+def register_view(request):
+    error = None
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        if User.objects.filter(username=username).exists():
+            error = "Username already exists"
+        else:
+            user = User.objects.create_user(
+                username=username,
+                password=password
+            )
+            user.save()
+
+            # auto-login after signup
+            login(request, user)
+            return redirect("dashboard")
+
+    return render(request, "hospital/register.html", {"error": error})
