@@ -86,16 +86,19 @@
 
                         <div class="col-md-6">
                             <input type="text" name="phone" class="form-control" placeholder="Phone Number">
-                        </div>
+                        </div><select name="doctor" class="form-control" required>
+    <option value="">-- Choose Doctor --</option>
 
-                        <!-- DOCTOR DROPDOWN FIXED -->
-                        <div class="col-md-6">
-                            <select name="doctor" class="form-control" required>
-                                <option value="" disabled selected>Select Doctor</option>
-                                {% for doctor in doctors %}
-                                    <option value="{{ doctor.id }}">{{ doctor.name }}</option>
-                                {% endfor %}
-                            </select>
+    {% for d in doctors %}
+        <option value="{{ d.id }}">
+            Dr. {{ d.first_name }} {{ d.last_name }}
+        </option>
+    {% endfor %}
+
+</select>
+
+                   
+
                         </div>
 
                         <div class="col-md-6">
