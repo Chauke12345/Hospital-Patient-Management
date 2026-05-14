@@ -9,25 +9,28 @@ from accounts.decorators import admin_required, doctor_required
 # -----------------------------
 # LOGIN VIEW (ROLE-BASED REDIRECT)
 # -----------------------------
-class UserLoginView(LoginView):
-    template_name = 'accounts/login.html'
+from django.contrib.auth import authenticate, login
+from django.contrib.auth import get_user_model
+from django.shortcuts import render, redirect
 
-    def form_valid(self, form):
-        user = form.get_user()
-        login(self.request, user)
+User = get_user_model()
 
-        # Role-based routing
-        if user.role == 'ADMIN':
-            return redirect('/')
-        elif user.role == 'DOCTOR':
-            return redirect('/doctor/')
-        elif user.role == 'RECEPTIONIST':
-            return redirect('/reception/')
-        elif user.role == 'PHARMACIST':
-            return redirect('/pharmacy/')
+def login_view(request):
+    error = None
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect("dashboard")
         else:
-            return redirect('/')
+            error = "Invalid username or password"
 
+    return render(request, "hospital/login.html", {"error": error})
 
 # -----------------------------
 # LOGOUT
