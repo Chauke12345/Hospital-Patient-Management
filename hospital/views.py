@@ -3,11 +3,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 
-from .models import Patient, Doctor, Appointment, Prescription
-
 User = get_user_model()
 
-
+# Import models from their OWN apps (correct Django structure)
+from patients.models import Patient
+from doctors.models import Doctor
+from appointments.models import Appointment
+from hospital.models import Prescription  # only if it really lives here
 # =====================================
 # LOGIN
 # =====================================
