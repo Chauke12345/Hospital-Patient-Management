@@ -1,58 +1,130 @@
-from django.contrib.auth.views import LoginView
-from django.contrib.auth import logout, login
-from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
-
-from accounts.decorators import admin_required, doctor_required
-
-
-# -----------------------------
-# LOGIN VIEW (ROLE-BASED REDIRECT)
-# -----------------------------
-from django.contrib.auth import authenticate, login
-from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 
-User = get_user_model()
+from .models import Patient, Doctor, Appointment, Prescription
 
-def login_view(request):
-    error = None
+
+# -----------------------------
+# DASHBOARD (NO LOGIN REQUIRED)
+# -----------------------------
+def dashboard(request):
+    return render(request, "hospital/dashboard.html", {
+        "total_patients": Patient.objects.count(),
+        "total_doctors": Doctor.objects.count(),
+        "total_appointments": Appointment.objects.count(),
+        "total_prescriptions": Prescription.objects.count(),
+    })
+
+
+# -----------------------------
+# PATIENT LIST
+# -----------------------------
+def patients(request):
+    return render(request, "hospital/patients.html", {
+        "patients": Patient.objects.all().order_by('-id')
+    })
+
+
+# -----------------------------
+# RECEPTION
+# -----------------------------
+def reception(request):
+    doctors = Doctor.objects.all()
 
     if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
+        doctor_id = request.POST.get("doctor")
 
-        user = authenticate(request, username=username, password=password)
+        if not doctor_id:
+            return render(request, "hospital/reception.html", {
+                "doctors": doctors,
+                "error": "Please select a doctor"
+            })
 
-        if user is not None:
-            login(request, user)
-            return redirect("dashboard")
-        else:
-            error = "Invalid username or password"
+        doctor = Doctor.objects.get(id=doctor_id)
 
-    return render(request, "hospital/login.html", {"error": error})
+        Patient.objects.create(
+            name=request.POST.get("name") or "Unknown",
+            age=request.POST.get("age") or 0,
+            gender=request.POST.get("gender") or "Not specified",
+            phone=request.POST.get("phone") or "N/A",
+            ward=request.POST.get("ward") or "General",
+            reason=request.POST.get("reason") or "",
+            priority=request.POST.get("priority") or "Normal",
+            doctor=doctor
+        )
 
-# -----------------------------
-# LOGOUT
-# -----------------------------
-def user_logout(request):
-    logout(request)
-    return redirect('login')
+        return redirect("patients")
 
-
-# -----------------------------
-# ADMIN DASHBOARD
-# -----------------------------
-@login_required
-@admin_required
-def admin_dashboard(request):
-    return render(request, "accounts/admin_dashboard.html")
+    return render(request, "hospital/reception.html", {
+        "doctors": doctors
+    })
 
 
 # -----------------------------
-# DOCTOR DASHBOARD
+# APPOINTMENTS
 # -----------------------------
-@login_required
-@doctor_required
-def doctor_dashboard(request):
-    return render(request, 'doctor/dashboard.html')
+def appointments(request):
+
+    doctors = Doctor.objects.all()
+    patients = Patient.objects.all()
+
+    if request.method == "POST":
+
+        doctor_id = request.POST.get("doctor")
+        patient_id = request.POST.get("patient")
+
+        if not doctor_id or not patient_id:
+            return render(request, "hospital/appointments.html", {
+                "doctors": doctors,
+                "patients": patients,
+                "appointments": Appointment.objects.all(),
+                "error": "Please select doctor and patient"
+            })
+
+        Appointment.objects.create(
+            doctor_id=doctor_id,
+            patient_id=patient_id,
+            date=request.POST.get("date"),
+            time=request.POST.get("time"),
+            reason=request.POST.get("reason", "")
+        )
+
+        return redirect("appointments")
+
+    return render(request, "hospital/appointments.html", {
+        "doctors": doctors,
+        "patients": patients,
+        "appointments": Appointment.objects.all()
+    })
+
+
+# -----------------------------
+# PRESCRIPTIONS
+# -----------------------------
+def prescriptions(request):
+
+    doctors = Doctor.objects.all()
+    patients = Patient.objects.all()
+
+    if request.method == "POST":
+
+        patient_id = request.POST.get("patient")
+        doctor_id = request.POST.get("doctor")
+
+        patient = Patient.objects.get(id=patient_id)
+        doctor = Doctor.objects.get(id=doctor_id)
+
+        Prescription.objects.create(
+            patient=patient,
+            doctor=doctor,
+            medication=request.POST.get("medication"),
+            dosage=request.POST.get("dosage"),
+            instructions=request.POST.get("instructions"),
+        )
+
+        return redirect("prescriptions")
+
+    return render(request, "hospital/prescriptions.html", {
+        "doctors": doctors,
+        "patients": patients,
+        "prescriptions": Prescription.objects.all().order_by("-id")
+    })

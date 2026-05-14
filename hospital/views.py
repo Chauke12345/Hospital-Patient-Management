@@ -1,12 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 
 from .models import Patient, Doctor, Appointment, Prescription
 
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
+User = get_user_model()
 
 
 # =====================================
@@ -19,15 +17,20 @@ def login_view(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
 
-        user = authenticate(request, username=username, password=password)
+        if not username or not password:
+            error = "Please enter username and password"
+        else:
+            user = authenticate(request, username=username, password=password)
 
-        if user is not None:
-            login(request, user)
-            return redirect("dashboard")
-
-        error = "Invalid username or password"
+            if user is not None:
+                login(request, user)
+                return redirect("dashboard")
+            else:
+                error = "Invalid username or password"
 
     return render(request, "hospital/login.html", {"error": error})
+
+
 # =====================================
 # LOGOUT
 # =====================================
@@ -37,9 +40,8 @@ def logout_view(request):
 
 
 # =====================================
-# DASHBOARD
+# DASHBOARD (NO LOGIN REQUIRED)
 # =====================================
-@login_required(login_url='login')
 def dashboard(request):
     return render(request, "hospital/dashboard.html", {
         "total_patients": Patient.objects.count(),
@@ -52,7 +54,6 @@ def dashboard(request):
 # =====================================
 # PATIENT LIST
 # =====================================
-@login_required(login_url='login')
 def patients(request):
     return render(request, "hospital/patients.html", {
         "patients": Patient.objects.all().order_by('-id')
@@ -62,7 +63,6 @@ def patients(request):
 # =====================================
 # RECEPTION
 # =====================================
-@login_required(login_url='login')
 def reception(request):
     doctors = Doctor.objects.all()
 
@@ -96,16 +96,17 @@ def reception(request):
 
             return render(request, "hospital/reception.html", {
                 "doctors": doctors,
-                "error": "Something went wrong while saving patient."
+                "error": "Error saving patient"
             })
 
     return render(request, "hospital/reception.html", {
         "doctors": doctors
     })
+
+
 # =====================================
-# APPOINTMENTS (FIXED + SAFE)
+# APPOINTMENTS
 # =====================================
-@login_required(login_url='login')
 def appointments(request):
 
     doctors = Doctor.objects.all()
@@ -116,7 +117,6 @@ def appointments(request):
         doctor_id = request.POST.get("doctor")
         patient_id = request.POST.get("patient")
 
-        # basic validation
         if not doctor_id or not patient_id:
             return render(request, "hospital/appointments.html", {
                 "doctors": doctors,
@@ -140,10 +140,11 @@ def appointments(request):
         "patients": patients,
         "appointments": Appointment.objects.all()
     })
+
+
 # =====================================
-# PRESCRIPTIONS (CLEANED)
+# PRESCRIPTIONS
 # =====================================
-@login_required(login_url='login')
 def prescriptions(request):
 
     doctors = Doctor.objects.all()
@@ -151,13 +152,10 @@ def prescriptions(request):
 
     if request.method == "POST":
 
-        print("POST DATA:", request.POST)
-
         patient_id = request.POST.get("patient")
         doctor_id = request.POST.get("doctor")
 
         try:
-
             patient = Patient.objects.get(id=patient_id)
             doctor = Doctor.objects.get(id=doctor_id)
 
@@ -169,19 +167,16 @@ def prescriptions(request):
                 instructions=request.POST.get("instructions"),
             )
 
-            print("Prescription saved successfully")
-
             return redirect("prescriptions")
 
         except Exception as e:
-
             print("ERROR:", e)
 
             return render(request, "hospital/prescriptions.html", {
                 "doctors": doctors,
                 "patients": patients,
                 "prescriptions": Prescription.objects.all(),
-                "error": str(e)
+                "error": "Error saving prescription"
             })
 
     return render(request, "hospital/prescriptions.html", {
@@ -191,6 +186,9 @@ def prescriptions(request):
     })
 
 
+# =====================================
+# REGISTER
+# =====================================
 def register_view(request):
     error = None
 
@@ -198,16 +196,17 @@ def register_view(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
 
-        if User.objects.filter(username=username).exists():
+        if not username or not password:
+            error = "Please fill all fields"
+
+        elif User.objects.filter(username=username).exists():
             error = "Username already exists"
+
         else:
             user = User.objects.create_user(
                 username=username,
                 password=password
             )
-            user.save()
-
-            # auto-login after signup
             login(request, user)
             return redirect("dashboard")
 
