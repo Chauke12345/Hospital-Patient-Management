@@ -42,10 +42,28 @@ def logout_view(request):
 # =====================================
 # DASHBOARD (NO LOGIN REQUIRED)
 # =====================================
-from django.http import HttpResponse
+from django.shortcuts import render
+from .models import Patient, Doctor, Appointment, Prescription
+
 
 def dashboard(request):
-    return HttpResponse("Dashboard works")
+    try:
+        context = {
+            "total_patients": Patient.objects.count(),
+            "total_doctors": Doctor.objects.count(),
+            "total_appointments": Appointment.objects.count(),
+            "total_prescriptions": Prescription.objects.count(),
+        }
+    except Exception:
+        # Fallback so the page NEVER crashes
+        context = {
+            "total_patients": 0,
+            "total_doctors": 0,
+            "total_appointments": 0,
+            "total_prescriptions": 0,
+        }
+
+    return render(request, "hospital/dashboard.html", context)
 
 # =====================================
 # PATIENT LIST
