@@ -9,7 +9,7 @@ from .models import Patient, Doctor, Appointment, Prescription
 # LOGIN
 # =====================================
 def login_view(request):
-    error = ""
+    error = None
 
     if request.method == "POST":
         username = request.POST.get("username")
@@ -17,14 +17,13 @@ def login_view(request):
 
         user = authenticate(request, username=username, password=password)
 
-        if user:
+        if user is not None:
             login(request, user)
             return redirect("dashboard")
-
-        error = "Invalid username or password"
+        else:
+            error = "Invalid username or password"
 
     return render(request, "hospital/login.html", {"error": error})
-
 
 # =====================================
 # LOGOUT
