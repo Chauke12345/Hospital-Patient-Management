@@ -11,12 +11,12 @@ class Doctor(models.Model):
 class Patient(models.Model):
     name = models.CharField(max_length=100)
     age = models.IntegerField(blank=True, null=True)
-    phone = models.CharField(max_length=20, blank=True, null=True)
+    phone = models.CharField(max_length=30, blank=True, null=True)
 
-    gender = models.CharField(max_length=10, blank=True, null=True)
-    ward = models.CharField(max_length=50, blank=True, null=True)
+    gender = models.CharField(max_length=50, blank=True, null=True)
+    ward = models.CharField(max_length=100, blank=True, null=True)
     reason = models.TextField(blank=True, null=True)
-    priority = models.CharField(max_length=20, blank=True, null=True)
+    priority = models.CharField(max_length=50, blank=True, null=True)
 
     doctor = models.ForeignKey('Doctor', on_delete=models.SET_NULL, null=True, blank=True)
 
