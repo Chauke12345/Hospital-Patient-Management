@@ -42,14 +42,10 @@ def logout_view(request):
 # =====================================
 # DASHBOARD (NO LOGIN REQUIRED)
 # =====================================
-def dashboard(request):
-    return render(request, "hospital/dashboard.html", {
-        "total_patients": Patient.objects.count(),
-        "total_doctors": Doctor.objects.count(),
-        "total_appointments": Appointment.objects.count(),
-        "total_prescriptions": Prescription.objects.count(),
-    })
+from django.http import HttpResponse
 
+def dashboard(request):
+    return HttpResponse("Dashboard works")
 
 # =====================================
 # PATIENT LIST
