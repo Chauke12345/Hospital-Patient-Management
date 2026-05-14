@@ -9,19 +9,29 @@ from .models import Patient, Doctor, Appointment, Prescription
 # LOGIN
 # =====================================
 def login_view(request):
+    import traceback
+
     error = None
 
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
+    try:
+        if request.method == "POST":
+            username = request.POST.get("username")
+            password = request.POST.get("password")
 
-        user = authenticate(request, username=username, password=password)
+            print("LOGIN ATTEMPT:", username, password)
 
-        if user is not None:
-            login(request, user)
-            return redirect("dashboard")
-        else:
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+                return redirect("dashboard")
+
             error = "Invalid username or password"
+
+    except Exception as e:
+        print("LOGIN ERROR:", e)
+        traceback.print_exc()
+        error = str(e)
 
     return render(request, "hospital/login.html", {"error": error})
 
