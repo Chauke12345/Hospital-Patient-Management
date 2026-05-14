@@ -38,3 +38,7 @@ def create_prescription(request, patient_id):
             return redirect('doctor_dashboard')
 
     return render(request, 'doctor/create_prescription.html', {'form': form})
+
+def doctor_list(request):
+    doctors = Doctor.objects.all()
+    return render(request, "doctors/doctor_list.html", {"doctors": doctors})

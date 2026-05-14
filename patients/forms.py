@@ -1,6 +1,5 @@
 from django import forms
-from patients.models import Patient
-
+from .models import Patient
 
 class PatientForm(forms.ModelForm):
     class Meta:
@@ -8,7 +7,10 @@ class PatientForm(forms.ModelForm):
         fields = [
             'name',
             'age',
+            'phone',
             'gender',
-            'symptoms',
-            'assigned_doctor',
+            'ward',
+            'reason',
+            'priority',
+            'doctor'
         ]

@@ -1,0 +1,10 @@
+<h2>Doctors</h2>
+
+<ul>
+  {% for doctor in doctors %}
+    <li>
+      Dr. {{ doctor.first_name }} {{ doctor.last_name }}
+      - {{ doctor.specialization }}
+    </li>
+  {% endfor %}
+</ul>
