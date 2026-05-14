@@ -75,24 +75,31 @@ def reception(request):
 
         doctor = get_object_or_404(Doctor, id=doctor_id)
 
-        Patient.objects.create(
-            name=request.POST.get("name", ""),
-            age=request.POST.get("age"),
-            gender=request.POST.get("gender"),
-            phone=request.POST.get("phone"),
-            ward=request.POST.get("ward"),
-            reason=request.POST.get("reason"),
-            priority=request.POST.get("priority"),
-            doctor=doctor
-        )
+        try:
+            Patient.objects.create(
+                name=request.POST.get("name") or "Unknown",
+                age=int(request.POST.get("age") or 0),
+                gender=request.POST.get("gender") or "Not specified",
+                phone=request.POST.get("phone") or "N/A",
+                ward=request.POST.get("ward") or "General",
+                reason=request.POST.get("reason") or "",
+                priority=request.POST.get("priority") or "Normal",
+                doctor=doctor
+            )
 
-        return redirect("patients")
+            return redirect("patients")
+
+        except Exception as e:
+            print("ERROR:", e)
+
+            return render(request, "hospital/reception.html", {
+                "doctors": doctors,
+                "error": "Something went wrong while saving patient."
+            })
 
     return render(request, "hospital/reception.html", {
         "doctors": doctors
     })
-
-
 # =====================================
 # APPOINTMENTS (FIXED + SAFE)
 # =====================================
