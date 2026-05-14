@@ -9,32 +9,23 @@ from .models import Patient, Doctor, Appointment, Prescription
 # LOGIN
 # =====================================
 def login_view(request):
-    import traceback
+    create_admin_if_not_exists()  # 👈 ADD THIS LINE
 
     error = None
 
-    try:
-        if request.method == "POST":
-            username = request.POST.get("username")
-            password = request.POST.get("password")
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
-            print("LOGIN ATTEMPT:", username, password)
+        user = authenticate(request, username=username, password=password)
 
-            user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect("dashboard")
 
-            if user is not None:
-                login(request, user)
-                return redirect("dashboard")
-
-            error = "Invalid username or password"
-
-    except Exception as e:
-        print("LOGIN ERROR:", e)
-        traceback.print_exc()
-        error = str(e)
+        error = "Invalid username or password"
 
     return render(request, "hospital/login.html", {"error": error})
-
 # =====================================
 # LOGOUT
 # =====================================
@@ -196,3 +187,4 @@ def prescriptions(request):
         "patients": patients,
         "prescriptions": Prescription.objects.all().order_by("-id")
     })
+
