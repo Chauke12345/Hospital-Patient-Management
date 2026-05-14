@@ -6,10 +6,11 @@ urlpatterns = [
 
     path('reception/', views.reception, name='reception'),
 
-    path('patients/', views.patients, name='patients'),
+    
 
     path('appointments/', views.appointments, name='appointments'),
 
     path('prescriptions/', views.prescriptions, name='prescriptions'),
     path('', views.doctor_list, name='doctor_list'),
+    path("patients/", views.patient_list, name="patients")
 ]

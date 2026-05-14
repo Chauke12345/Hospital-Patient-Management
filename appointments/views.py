@@ -1,44 +1,44 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Appointment, Patient, Doctor
-
-
-@login_required(login_url='login')
 def appointments(request):
-
-    patients = Patient.objects.all()
     doctors = Doctor.objects.all()
+    patients = Patient.objects.all()
+    appointments = Appointment.objects.all()
 
     if request.method == "POST":
-
-        patient_id = request.POST.get("patient")
         doctor_id = request.POST.get("doctor")
-        date = request.POST.get("date")
-        time = request.POST.get("time")
-        reason = request.POST.get("reason")
+        patient_id = request.POST.get("patient")
 
-        # VALIDATION
-        if not patient_id or not doctor_id:
+        # ✅ Prevent crash if missing form data
+        if not doctor_id or not patient_id:
             return render(request, "hospital/appointments.html", {
-                "patients": patients,
                 "doctors": doctors,
-                "error": "Patient and Doctor are required"
+                "patients": patients,
+                "appointments": appointments,
+                "error": "Doctor and patient are required"
             })
 
-        patient = get_object_or_404(Patient, id=patient_id)
-        doctor = get_object_or_404(Doctor, id=doctor_id)
+        try:
+            Appointment.objects.create(
+                doctor_id=doctor_id,
+                patient_id=patient_id,
+                date=request.POST.get("date"),
+                time=request.POST.get("time"),
+                reason=request.POST.get("reason", "")
+            )
 
-        Appointment.objects.create(
-            patient=patient,
-            doctor=doctor,
-            date=date,
-            time=time,
-            reason=reason
-        )
+        except Exception as e:
+            print("APPOINTMENT ERROR:", e)
+
+            return render(request, "hospital/appointments.html", {
+                "doctors": doctors,
+                "patients": patients,
+                "appointments": appointments,
+                "error": str(e)
+            })
 
         return redirect("appointments")
 
     return render(request, "hospital/appointments.html", {
+        "doctors": doctors,
         "patients": patients,
-        "doctors": doctors
+        "appointments": appointments
     })

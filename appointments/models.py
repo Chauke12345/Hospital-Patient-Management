@@ -1,30 +1,34 @@
 from django.db import models
-from patients.models import Patient
-from accounts.models import User
 
+
+# =========================
+# APPOINTMENT MODEL
+# Links patients and doctors for scheduled visits
+# =========================
 class Appointment(models.Model):
 
-    STATUS_CHOICES = (
-        ('PENDING', 'Pending'),
-        ('COMPLETED', 'Completed'),
-        ('CANCELLED', 'Cancelled'),
+    # Link to Patient model (from patients app)
+    patient = models.ForeignKey(
+        "patients.Patient",
+        on_delete=models.CASCADE
     )
 
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    # Link to Doctor model (from doctors app)
     doctor = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        limit_choices_to={'role': 'DOCTOR'}
+        "doctors.Doctor",
+        on_delete=models.CASCADE
     )
 
-    appointment_date = models.DateTimeField()
+    # Appointment scheduling details
+    date = models.DateField()
+    time = models.TimeField()
+
+    # Optional reason for visit
     reason = models.TextField(blank=True, null=True)
 
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
-
+    # Auto-generated timestamp when appointment is created
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.patient} - {self.doctor}"
-    
-    
+        # Human-readable display in admin panel
+        return f"{self.patient} → {self.doctor} ({self.date})"
