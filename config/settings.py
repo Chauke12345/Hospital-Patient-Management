@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 Django settings for config project.
 """
+"""
+Django settings for config project (Production Ready - Render).
+"""
 
 from pathlib import Path
 import os
@@ -24,21 +27,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =====================================
 # SECURITY
 # =====================================
-import os
 
-SECRET_KEY = os.environ["SECRET_KEY"]  # keep strict in production
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.environ.get("ALLOWED_HOSTS", "").split(",")
+    for host in os.environ.get(
+        "ALLOWED_HOSTS",
+        ".onrender.com"
+    ).split(",")
     if host.strip()
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://hospital-patient-management-production.up.railway.app"
-]
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    "CSRF_TRUSTED_ORIGINS",
+    ""
+).split(",")
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+
+
 # =====================================
 # APPS
 # =====================================
@@ -51,7 +63,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # apps
+    # custom apps
     'accounts',
     'patients',
     'doctors',
@@ -64,7 +76,7 @@ INSTALLED_APPS = [
 
 
 # =====================================
-# MIDDLEWARE (FIXED)
+# MIDDLEWARE
 # =====================================
 
 MIDDLEWARE = [
@@ -105,8 +117,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-import dj_database_url
-import os
+
+# =====================================
+# DATABASE
+# =====================================
 
 DATABASES = {
     "default": dj_database_url.config(
@@ -117,6 +131,7 @@ DATABASES = {
         conn_max_age=600
     )
 }
+
 
 # =====================================
 # PASSWORD VALIDATION
@@ -144,13 +159,12 @@ USE_TZ = True
 # STATIC FILES (RENDER READY)
 # =====================================
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = []
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = []
 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-
-# WhiteNoise (modern Django way)
 STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
