@@ -26,14 +26,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =====================================
 import os
 
-SECRET_KEY = os.environ["SECRET_KEY"]
+SECRET_KEY = os.environ["SECRET_KEY"]  # keep strict in production
 
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["*"]  # temporary for first deploy
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get("ALLOWED_HOSTS", "").split(",")
+    if host.strip()
+]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://your-app.up.railway.app"
+    "https://hospital-patient-management-production.up.railway.app"
 ]
 # =====================================
 # APPS
