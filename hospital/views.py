@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 User = get_user_model()
 
 # =========================
-# IMPORT MODELS (APP STRUCTURE)
+# IMPORT MODELS
 # =========================
 from patients.models import Patient
 from doctors.models import Doctor
@@ -13,10 +14,8 @@ from appointments.models import Appointment
 from pharmacy.models import Prescription
 
 
-
 # =========================
 # LOGIN VIEW
-# Handles user authentication
 # =========================
 def login_view(request):
     error = None
@@ -25,10 +24,8 @@ def login_view(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
 
-        # Validate input
         if not username or not password:
             error = "Please enter username and password"
-
         else:
             user = authenticate(request, username=username, password=password)
 
@@ -51,7 +48,6 @@ def logout_view(request):
 
 # =========================
 # DASHBOARD VIEW
-# Shows system summary
 # =========================
 def dashboard(request):
     context = {
@@ -78,46 +74,59 @@ def reception(request):
     doctors = Doctor.objects.all()
 
     if request.method == "POST":
-        name = request.POST.get("name")
-        age = request.POST.get("age")
-        doctor_id = request.POST.get("doctor")
-
-        if not name or not age or not doctor_id:
-            return render(request, "hospital/reception.html", {
-                "doctors": doctors,
-                "error": "Name, Age and Doctor are required"
-            })
-
         try:
-            age = int(age)
-        except ValueError:
+            name = request.POST.get("name")
+            age = request.POST.get("age")
+            doctor_id = request.POST.get("doctor")
+
+            if not name or not age or not doctor_id:
+                return render(request, "hospital/reception.html", {
+                    "doctors": doctors,
+                    "error": "All required fields must be filled"
+                })
+
+            try:
+                age = int(age)
+            except ValueError:
+                return render(request, "hospital/reception.html", {
+                    "doctors": doctors,
+                    "error": "Age must be a number"
+                })
+
+            doctor = Doctor.objects.filter(id=doctor_id).first()
+            if not doctor:
+                return render(request, "hospital/reception.html", {
+                    "doctors": doctors,
+                    "error": "Invalid doctor selected"
+                })
+
+            Patient.objects.create(
+                name=name,
+                age=age,
+                gender=request.POST.get("gender") or "Not specified",
+                phone=request.POST.get("phone") or "",
+                ward=request.POST.get("ward") or "General",
+                reason=request.POST.get("reason") or "",
+                priority=request.POST.get("priority") or "Normal",
+                doctor=doctor
+            )
+
+            return redirect("patients")
+
+        except Exception as e:
+            import traceback
+            print("RECEPTION ERROR:", e)
+            print(traceback.format_exc())
+
             return render(request, "hospital/reception.html", {
                 "doctors": doctors,
-                "error": "Age must be a number"
+                "error": "Something went wrong while saving patient"
             })
 
-        try:
-            doctor = Doctor.objects.get(id=doctor_id)
-        except Doctor.DoesNotExist:
-            return render(request, "hospital/reception.html", {
-                "doctors": doctors,
-                "error": "Invalid doctor selected"
-            })
+    return render(request, "hospital/reception.html", {
+        "doctors": doctors
+    })
 
-        Patient.objects.create(
-            name=name,
-            age=age,
-            gender=request.POST.get("gender") or "Not specified",
-            phone=request.POST.get("phone") or "",
-            ward=request.POST.get("ward") or "General",
-            reason=request.POST.get("reason") or "",
-            priority=request.POST.get("priority") or "Normal",
-            doctor=doctor
-        )
-
-        return redirect("patients")
-
-    return render(request, "hospital/reception.html", {"doctors": doctors})
 
 # =========================
 # APPOINTMENTS VIEW
@@ -131,7 +140,6 @@ def appointments(request):
         doctor_id = request.POST.get("doctor")
         patient_id = request.POST.get("patient")
 
-        # ✅ Prevent crash if missing form data
         if not doctor_id or not patient_id:
             return render(request, "hospital/appointments.html", {
                 "doctors": doctors,
@@ -167,6 +175,7 @@ def appointments(request):
         "appointments": appointments
     })
 
+
 # =========================
 # PRESCRIPTIONS VIEW
 # =========================
@@ -179,7 +188,6 @@ def prescriptions(request):
         doctor_id = request.POST.get("doctor")
         patient_id = request.POST.get("patient")
 
-        # ✅ Prevent missing input crash
         if not doctor_id or not patient_id:
             return render(request, "hospital/prescriptions.html", {
                 "doctors": doctors,
@@ -215,6 +223,7 @@ def prescriptions(request):
         "prescriptions": prescriptions
     })
 
+
 # =========================
 # REGISTER VIEW
 # =========================
@@ -227,10 +236,8 @@ def register_view(request):
 
         if not username or not password:
             error = "Please fill all fields"
-
         elif User.objects.filter(username=username).exists():
             error = "Username already exists"
-
         else:
             user = User.objects.create_user(username=username, password=password)
             login(request, user)
@@ -246,8 +253,10 @@ def doctor_list(request):
     doctors = Doctor.objects.all()
     return render(request, "doctors/doctor_list.html", {"doctors": doctors})
 
-from django.utils import timezone
 
+# =========================
+# ADMIT PATIENT
+# =========================
 def admit_patient(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
 

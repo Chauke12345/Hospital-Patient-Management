@@ -1,15 +1,8 @@
 from django.db import models
-
-
-class Doctor(models.Model):
-    name = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.name
+from doctors.models import Doctor
 
 
 class Patient(models.Model):
-
     GENDER_CHOICES = (
         ('Male', 'Male'),
         ('Female', 'Female'),
@@ -17,23 +10,50 @@ class Patient(models.Model):
     )
 
     name = models.CharField(max_length=200)
-    age = models.IntegerField()
-    gender = models.CharField(max_length=100, choices=GENDER_CHOICES)
-    phone = models.CharField(max_length=100)
 
-    address = models.CharField(max_length=255, null=True, blank=True)
-    ward = models.CharField(max_length=100, null=True, blank=True)
-    priority = models.CharField(max_length=100, default="Normal")
-    reason = models.TextField(null=True, blank=True)
+    age = models.PositiveIntegerField()
+
+    gender = models.CharField(
+        max_length=20,
+        choices=GENDER_CHOICES,
+        default="Other"
+    )
+
+    phone = models.CharField(
+        max_length=100,
+        blank=True,
+        default=""
+    )
+
+    ward = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True
+    )
+
+    reason = models.TextField(
+        null=True,
+        blank=True
+    )
+
+    priority = models.CharField(
+        max_length=50,
+        default="Normal"
+    )
 
     doctor = models.ForeignKey(
         Doctor,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
+        related_name="patients"
     )
 
-    admitted_at = models.DateTimeField(auto_now_add=True)
+    is_inpatient = models.BooleanField(default=False)
+
+    admitted_at = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
