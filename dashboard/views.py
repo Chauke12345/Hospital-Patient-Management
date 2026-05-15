@@ -1,17 +1,19 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 
 from patients.models import Patient
-from accounts.models import User
 from appointments.models import Appointment
 from pharmacy.models import Prescription
+
+User = get_user_model()
 
 
 @login_required
 def admin_dashboard(request):
 
     patients_count = Patient.objects.count()
-    doctors_count = User.objects.filter(role='DOCTOR').count()
+    doctors_count = User.objects.filter().count()  # TEMP SAFE FIX
     appointments_count = Appointment.objects.count()
     prescriptions_count = Prescription.objects.count()
 
