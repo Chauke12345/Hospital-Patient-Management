@@ -10,7 +10,7 @@ User = get_user_model()
 from patients.models import Patient
 from doctors.models import Doctor
 from appointments.models import Appointment
-from doctors.models import Prescription
+from prescriptions.models import Prescription
 
 
 # =========================
