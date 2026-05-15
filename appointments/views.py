@@ -1,42 +1,58 @@
+from django.shortcuts import render, redirect
+from .models import Appointment
+from doctors.models import Doctor
+from patients.models import Patient
+
+
 def appointments(request):
+    # Load all required data
     doctors = Doctor.objects.all()
     patients = Patient.objects.all()
-    appointments = Appointment.objects.all()
 
+    # Show newest appointments first (better UX)
+    appointments = Appointment.objects.select_related("doctor", "patient").order_by("-created_at")
+
+    # =========================
+    # CREATE APPOINTMENT (POST)
+    # =========================
     if request.method == "POST":
         doctor_id = request.POST.get("doctor")
         patient_id = request.POST.get("patient")
+        date = request.POST.get("date")
+        time = request.POST.get("time")
+        reason = request.POST.get("reason", "")
 
-        # ✅ Prevent crash if missing form data
-        if not doctor_id or not patient_id:
+        # Basic validation
+        if not doctor_id or not patient_id or not date or not time:
             return render(request, "hospital/appointments.html", {
                 "doctors": doctors,
                 "patients": patients,
                 "appointments": appointments,
-                "error": "Doctor and patient are required"
+                "error": "All required fields must be filled"
             })
 
         try:
             Appointment.objects.create(
                 doctor_id=doctor_id,
                 patient_id=patient_id,
-                date=request.POST.get("date"),
-                time=request.POST.get("time"),
-                reason=request.POST.get("reason", "")
+                date=date,
+                time=time,
+                reason=reason
             )
 
-        except Exception as e:
-            print("APPOINTMENT ERROR:", e)
+            return redirect("appointments")
 
+        except Exception as e:
             return render(request, "hospital/appointments.html", {
                 "doctors": doctors,
                 "patients": patients,
                 "appointments": appointments,
-                "error": str(e)
+                "error": f"Error creating appointment: {str(e)}"
             })
 
-        return redirect("appointments")
-
+    # =========================
+    # GET REQUEST (PAGE LOAD)
+    # =========================
     return render(request, "hospital/appointments.html", {
         "doctors": doctors,
         "patients": patients,

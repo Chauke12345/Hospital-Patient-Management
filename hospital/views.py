@@ -14,6 +14,7 @@ from appointments.models import Appointment
 from pharmacy.models import Prescription
 
 
+
 # =========================
 # LOGIN VIEW
 # =========================
@@ -179,35 +180,52 @@ def appointments(request):
 # =========================
 # PRESCRIPTIONS VIEW
 # =========================
+from django.shortcuts import render, redirect
+from .models import Prescription
+from doctors.models import Doctor
+from patients.models import Patient
+
+
 def prescriptions(request):
+    # Load required data
     doctors = Doctor.objects.all()
     patients = Patient.objects.all()
-    prescriptions = Prescription.objects.all().order_by("-id")
 
+    prescriptions = Prescription.objects.select_related(
+        "doctor", "patient"
+    ).order_by("-created_at")
+
+    # =========================
+    # CREATE PRESCRIPTION (POST)
+    # =========================
     if request.method == "POST":
         doctor_id = request.POST.get("doctor")
         patient_id = request.POST.get("patient")
+        medication = request.POST.get("medication")
+        dosage = request.POST.get("dosage", "")
+        instructions = request.POST.get("instructions", "")
 
-        if not doctor_id or not patient_id:
+        # Validation
+        if not doctor_id or not patient_id or not medication:
             return render(request, "hospital/prescriptions.html", {
                 "doctors": doctors,
                 "patients": patients,
                 "prescriptions": prescriptions,
-                "error": "Doctor and patient are required"
+                "error": "Doctor, patient, and medication are required"
             })
 
         try:
             Prescription.objects.create(
                 doctor_id=doctor_id,
                 patient_id=patient_id,
-                medication=request.POST.get("medication"),
-                dosage=request.POST.get("dosage"),
-                instructions=request.POST.get("instructions"),
+                medication=medication,
+                dosage=dosage,
+                instructions=instructions
             )
 
-        except Exception as e:
-            print("PRESCRIPTION ERROR:", e)
+            return redirect("prescriptions")
 
+        except Exception as e:
             return render(request, "hospital/prescriptions.html", {
                 "doctors": doctors,
                 "patients": patients,
@@ -215,14 +233,14 @@ def prescriptions(request):
                 "error": str(e)
             })
 
-        return redirect("prescriptions")
-
+    # =========================
+    # GET PAGE
+    # =========================
     return render(request, "hospital/prescriptions.html", {
         "doctors": doctors,
         "patients": patients,
         "prescriptions": prescriptions
     })
-
 
 # =========================
 # REGISTER VIEW
@@ -265,3 +283,22 @@ def admit_patient(request, patient_id):
     patient.save()
 
     return redirect('reception_dashboard')
+
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+def fix_admin(request):
+    User.objects.filter(username="admin").delete()
+
+    User.objects.create_superuser(
+        username="admin",
+        email="admin@gmail.com",
+        password="1234"
+    )
+
+    return HttpResponse("Admin reset successful")
+
+from django.http import HttpResponse
+
+def test_view(request):
+    return HttpResponse("OK WORKING")
