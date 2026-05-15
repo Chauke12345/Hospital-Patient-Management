@@ -78,32 +78,46 @@ def reception(request):
     doctors = Doctor.objects.all()
 
     if request.method == "POST":
+        name = request.POST.get("name")
+        age = request.POST.get("age")
         doctor_id = request.POST.get("doctor")
 
-        if not doctor_id:
+        if not name or not age or not doctor_id:
             return render(request, "hospital/reception.html", {
                 "doctors": doctors,
-                "error": "Please select a doctor"
+                "error": "Name, Age and Doctor are required"
             })
 
-        doctor = get_object_or_404(Doctor, id=doctor_id)
+        try:
+            age = int(age)
+        except ValueError:
+            return render(request, "hospital/reception.html", {
+                "doctors": doctors,
+                "error": "Age must be a number"
+            })
 
-        # Create patient safely
+        try:
+            doctor = Doctor.objects.get(id=doctor_id)
+        except Doctor.DoesNotExist:
+            return render(request, "hospital/reception.html", {
+                "doctors": doctors,
+                "error": "Invalid doctor selected"
+            })
+
         Patient.objects.create(
-            name=request.POST.get("name", "Unknown"),
-            age=request.POST.get("age") or 0,
-            gender=request.POST.get("gender", "Not specified"),
-            phone=request.POST.get("phone", ""),
-            ward=request.POST.get("ward", "General"),
-            reason=request.POST.get("reason", ""),
-            priority=request.POST.get("priority", "Normal"),
+            name=name,
+            age=age,
+            gender=request.POST.get("gender") or "Not specified",
+            phone=request.POST.get("phone") or "",
+            ward=request.POST.get("ward") or "General",
+            reason=request.POST.get("reason") or "",
+            priority=request.POST.get("priority") or "Normal",
             doctor=doctor
         )
 
         return redirect("patients")
 
     return render(request, "hospital/reception.html", {"doctors": doctors})
-
 
 # =========================
 # APPOINTMENTS VIEW

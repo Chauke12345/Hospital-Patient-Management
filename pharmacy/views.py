@@ -1,18 +1,23 @@
+from django.shortcuts import render, redirect
+from doctors.models import Doctor
+from patients.models import Patient
+from pharmacy.models import Prescription   # adjust if needed
+
+
 def prescriptions(request):
     doctors = Doctor.objects.all()
     patients = Patient.objects.all()
-    prescriptions = Prescription.objects.all().order_by("-id")
+    prescriptions_list = Prescription.objects.all().order_by("-id")
 
     if request.method == "POST":
         doctor_id = request.POST.get("doctor")
         patient_id = request.POST.get("patient")
 
-        # ✅ Prevent missing input crash
         if not doctor_id or not patient_id:
             return render(request, "hospital/prescriptions.html", {
                 "doctors": doctors,
                 "patients": patients,
-                "prescriptions": prescriptions,
+                "prescriptions": prescriptions_list,
                 "error": "Doctor and patient are required"
             })
 
@@ -26,12 +31,10 @@ def prescriptions(request):
             )
 
         except Exception as e:
-            print("PRESCRIPTION ERROR:", e)
-
             return render(request, "hospital/prescriptions.html", {
                 "doctors": doctors,
                 "patients": patients,
-                "prescriptions": prescriptions,
+                "prescriptions": prescriptions_list,
                 "error": str(e)
             })
 
@@ -40,5 +43,5 @@ def prescriptions(request):
     return render(request, "hospital/prescriptions.html", {
         "doctors": doctors,
         "patients": patients,
-        "prescriptions": prescriptions
+        "prescriptions": prescriptions_list
     })
