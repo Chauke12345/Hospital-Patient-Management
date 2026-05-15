@@ -24,20 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =====================================
 # SECURITY
 # =====================================
-import os
-
-SECRET_KEY = os.environ["SECRET_KEY"]
-
-DEBUG = False
-
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv("ALLOWED_HOSTS", "").split(",")
-    if host.strip()
-]
+ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://hospital-patient-management-production.up.railway.app",
+    "https://hospital-sync-system.onrender.com",
+
 ]
 # =====================================
 # APPS
