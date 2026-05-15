@@ -70,6 +70,10 @@ def patient_list(request):
 # =========================
 # RECEPTION (REGISTER PATIENT)
 # =========================
+from django.shortcuts import render, redirect
+from .models import Doctor, Patient
+import traceback
+
 def reception(request):
     doctors = Doctor.objects.all()
 
@@ -79,27 +83,25 @@ def reception(request):
             age = request.POST.get("age")
             doctor_id = request.POST.get("doctor")
 
-            if not name or not age or not doctor_id:
-                return render(request, "hospital/reception.html", {
-                    "doctors": doctors,
-                    "error": "All required fields must be filled"
-                })
-
+            # Validate doctor
             try:
-                age = int(age)
-            except ValueError:
-                return render(request, "hospital/reception.html", {
-                    "doctors": doctors,
-                    "error": "Age must be a number"
-                })
-
-            doctor = Doctor.objects.filter(id=doctor_id).first()
-            if not doctor:
+                doctor = Doctor.objects.get(id=doctor_id)
+            except Doctor.DoesNotExist:
                 return render(request, "hospital/reception.html", {
                     "doctors": doctors,
                     "error": "Invalid doctor selected"
                 })
 
+            # Validate age
+            try:
+                age = int(age)
+            except (ValueError, TypeError):
+                return render(request, "hospital/reception.html", {
+                    "doctors": doctors,
+                    "error": "Age must be a valid number"
+                })
+
+            # Create patient
             Patient.objects.create(
                 name=name,
                 age=age,
@@ -114,7 +116,6 @@ def reception(request):
             return redirect("patients")
 
         except Exception as e:
-            import traceback
             print("RECEPTION ERROR:", e)
             print(traceback.format_exc())
 
@@ -126,7 +127,6 @@ def reception(request):
     return render(request, "hospital/reception.html", {
         "doctors": doctors
     })
-
 
 # =========================
 # APPOINTMENTS VIEW
