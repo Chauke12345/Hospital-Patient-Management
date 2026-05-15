@@ -20,7 +20,7 @@ class Prescription(models.Model):
     dosage = models.CharField(max_length=200)
     instructions = models.TextField(blank=True, null=True)
 
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='PENDING')
+    status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='PENDING')
 
     created_at = models.DateTimeField(auto_now_add=True)
 

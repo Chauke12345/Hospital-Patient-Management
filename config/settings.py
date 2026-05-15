@@ -24,11 +24,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =====================================
 # SECURITY
 # =====================================
-ALLOWED_HOSTS = ["*"]
+import os
+
+SECRET_KEY = os.environ["SECRET_KEY"]
+
+DEBUG = os.environ.get("DEBUG", "False") == "True"
+
+ALLOWED_HOSTS = ["*"]  # temporary for first deploy
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://hospital-sync-system.onrender.com",
-
+    "https://your-app.up.railway.app"
 ]
 # =====================================
 # APPS
@@ -60,6 +65,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

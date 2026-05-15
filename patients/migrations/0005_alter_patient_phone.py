@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='patient',
             name='phone',
-            field=models.CharField(max_length=50),
+            field=models.CharField(max_length=100),
         ),
     ]

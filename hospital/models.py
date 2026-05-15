@@ -11,7 +11,7 @@ class Doctor(models.Model):
 
     specialization = models.CharField(max_length=100)
 
-    phone = models.CharField(max_length=50, blank=True, null=True)
+    phone = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
 
     def __str__(self):
@@ -27,14 +27,14 @@ class Patient(models.Model):
     name = models.CharField(max_length=100)
 
     age = models.IntegerField(blank=True, null=True)
-    phone = models.CharField(max_length=50, blank=True, null=True)
+    phone = models.CharField(max_length=100, blank=True, null=True)
 
-    gender = models.CharField(max_length=50, blank=True, null=True)
+    gender = models.CharField(max_length=100, blank=True, null=True)
     ward = models.CharField(max_length=100, blank=True, null=True)
     
 
     reason = models.TextField(blank=True, null=True)
-    priority = models.CharField(max_length=50, blank=True, null=True)
+    priority = models.CharField(max_length=100, blank=True, null=True)
 
     # Optional assigned doctor (can be null)
     doctor = models.ForeignKey(

@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='patient',
             name='age',
-            field=models.IntegerField(default=18),
+            field=models.IntegerField(default=100),
             preserve_default=False,
         ),
         migrations.AddField(
@@ -35,11 +35,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='patient',
             name='gender',
-            field=models.CharField(choices=[('MALE', 'Male'), ('FEMALE', 'Female'), ('OTHER', 'Other')], max_length=10),
+            field=models.CharField(choices=[('MALE', 'Male'), ('FEMALE', 'Female'), ('OTHER', 'Other')], max_length=100),
         ),
         migrations.AlterField(
             model_name='patient',
             name='phone',
-            field=models.CharField(max_length=15),
+            field=models.CharField(max_length=100),
         ),
     ]
