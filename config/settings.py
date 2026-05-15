@@ -24,23 +24,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =====================================
 # SECURITY
 # =====================================
+import os
 
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY",
-    "django-insecure-default-key-change-me"
-)
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    "hospital-patient-management-production.up.railway.app",
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", "").split(",")
+    if host.strip()
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://hospital-patient-management-production.up.railway.app",
-    "https://*.railway.app"
 ]
-
 # =====================================
 # APPS
 # =====================================
