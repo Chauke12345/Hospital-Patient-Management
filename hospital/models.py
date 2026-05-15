@@ -1,42 +1,52 @@
 from django.db import models
 
 
-# =========================
-# DOCTOR MODEL
-# Stores doctor details
-# =========================
-class Doctor(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
 
-    specialization = models.CharField(max_length=100)
-
-    phone = models.CharField(max_length=100, blank=True, null=True)
-    email = models.EmailField(blank=True, null=True)
-
-    def __str__(self):
-        # Display format in admin and dropdowns
-        return f"Dr. {self.first_name} {self.last_name}"
+from django.db import models
+from doctors.models import Doctor
 
 
-# =========================
-# PATIENT MODEL
-# Stores patient details + assigned doctor
-# =========================
 class Patient(models.Model):
+
+    GENDER_CHOICES = (
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Other', 'Other'),
+    )
+
     name = models.CharField(max_length=100)
 
-    age = models.IntegerField(blank=True, null=True)
-    phone = models.CharField(max_length=100, blank=True, null=True)
+    age = models.IntegerField(null=True, blank=True)
 
-    gender = models.CharField(max_length=100, blank=True, null=True)
-    ward = models.CharField(max_length=100, blank=True, null=True)
-    
+    gender = models.CharField(
+        max_length=20,
+        choices=GENDER_CHOICES,
+        null=True,
+        blank=True
+    )
 
-    reason = models.TextField(blank=True, null=True)
-    priority = models.CharField(max_length=100, blank=True, null=True)
+    phone = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True
+    )
 
-    # Optional assigned doctor (can be null)
+    ward = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True
+    )
+
+    reason = models.TextField(
+        null=True,
+        blank=True
+    )
+
+    priority = models.CharField(
+        max_length=100,
+        default="Normal"
+    )
+
     doctor = models.ForeignKey(
         Doctor,
         on_delete=models.SET_NULL,
@@ -44,34 +54,17 @@ class Patient(models.Model):
         blank=True
     )
 
-    def __str__(self):
-        return self.name
+    is_inpatient = models.BooleanField(default=False)
 
-
-# =========================
-# APPOINTMENT MODEL
-# Links patient + doctor with date/time
-# =========================
-class Appointment(models.Model):
-    patient = models.ForeignKey(
-        Patient,
-        on_delete=models.CASCADE
+    admitted_at = models.DateTimeField(
+        null=True,
+        blank=True
     )
-
-    doctor = models.ForeignKey(
-        Doctor,
-        on_delete=models.CASCADE
-    )
-
-    date = models.DateField()
-    time = models.TimeField()
-
-    reason = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.patient} → {self.doctor} ({self.date})"
+        return self.name
 
 
 # =========================
