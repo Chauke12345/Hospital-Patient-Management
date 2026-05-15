@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='prescription',
             name='status',
-            field=models.CharField(choices=[('PENDING', 'Pending'), ('DISPENSED', 'Dispensed')], default='PENDING', max_length=50),
+            field=models.CharField(choices=[('PENDING', 'Pending'), ('DISPENSED', 'Dispensed')], default='PENDING', max_length=100),
         ),
     ]

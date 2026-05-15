@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='doctor',
             name='phone',
-            field=models.CharField(blank=True, max_length=30, null=True),
+            field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AlterField(
             model_name='doctor',

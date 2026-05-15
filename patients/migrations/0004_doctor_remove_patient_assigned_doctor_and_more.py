@@ -43,13 +43,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='patient',
             name='phone',
-            field=models.CharField(default=django.utils.timezone.now, max_length=30),
+            field=models.CharField(default=django.utils.timezone.now, max_length=100),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='patient',
             name='priority',
-            field=models.CharField(default='Normal', max_length=50),
+            field=models.CharField(default='Normal', max_length=100),
         ),
         migrations.AddField(
             model_name='patient',
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='patient',
             name='ward',
-            field=models.CharField(blank=True, max_length=50, null=True),
+            field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AlterField(
             model_name='patient',
@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='patient',
             name='gender',
-            field=models.CharField(choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')], max_length=50),
+            field=models.CharField(choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')], max_length=100),
         ),
         migrations.AlterField(
             model_name='patient',

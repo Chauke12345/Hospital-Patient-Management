@@ -13,17 +13,17 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='patient',
             name='gender',
-            field=models.CharField(blank=True, max_length=50, null=True),
+            field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AlterField(
             model_name='patient',
             name='phone',
-            field=models.CharField(blank=True, max_length=30, null=True),
+            field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AlterField(
             model_name='patient',
             name='priority',
-            field=models.CharField(blank=True, max_length=50, null=True),
+            field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AlterField(
             model_name='patient',
