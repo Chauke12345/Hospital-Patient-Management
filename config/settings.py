@@ -33,10 +33,20 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS =  "hospital-patient-management-production.up.railway.app"  # temporary for first deploy
+ALLOWED_HOSTS = [
+    host for host in os.environ.get(
+        "ALLOWED_HOSTS",
+        "hospital-patients-management.onrender.com"
+    ).split(",")
+    if host
+]
 
 CSRF_TRUSTED_ORIGINS = [
-      "https://hospital-patient-management-production.up.railway.app"
+    origin for origin in os.environ.get(
+        "CSRF_TRUSTED_ORIGINS",
+        "https://hospital-patients-management.onrender.com"
+    ).split(",")
+    if origin
 ]
 # =====================================
 # APPS
